@@ -2,7 +2,7 @@
 title: "Spotify Lab"
 subtitle: "The Data Science of Everyday Music Listening"
 author: "John Ashley Burgoyne"
-date: "Week 47 · 2023"
+date: "2023-11-23"
 format: 
   html:
     toc: true
