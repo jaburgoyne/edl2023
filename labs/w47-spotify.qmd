@@ -1,0 +1,123 @@
+---
+title: "Spotify Lab"
+subtitle: "The Data Science of Everyday Music Listening"
+author: "John Ashley Burgoyne"
+date: "Week 47 · 2023"
+format: 
+  html:
+    toc: true
+    embed-resources: true
+    theme: paper
+---
+
+Every Spotify user, including free-tier users, is allowed to access the Spotify API, which contains a rich set of information about every track in Spotify's catalogue. This API is the heart of everything we will be doing in this course.
+
+Although access to the Spotify API is free, there *are* limits on how much data you download from them. If you violate these limits repeatedly, Spotify may close your account. It is extremely unlikely that you will break the limits while working on assignments for this course — but if an attacker gets access to your Spotify API credentials, they might try to use them and cause you problems. Because the portfolios for this course will be public websites, we need to take a few extra steps to keep our Spotify API credentials safe.
+
+## Setup
+
+You only need to do this setup once.
+
+### 1. Create a Spotify Developer App
+
+1. If you do not already have a [Spotify](https://www.spotify.com) account, create one now. Although I recommend a Premium account so that you can avoid ads, in principle, a Free account is sufficient for everything we will do in this course.
+2. Visit the [Spotify for Developers](https://developer.spotify.com) web page. 
+3. Click on the Dashboard tab (at the top just a bit right of centre).
+4. Log in using your Spotify account.
+5. Click on the Create an App button.
+6. In the pop-up window that appears, give your 'app' a title and description (only Spotify will see these) and consent to the terms and conditions, and click on the Create button.
+7. You will be brought either to your Dashboard or directly to Spotify's page for your new app. If you are brought to your Dashboard, click on your app to visit its page. Once you are on your app's page, you will see a screen that looks like the following, with a Client ID, and an option to show your Client Secret.
+8. Click on the text to show your Client Secret, and copy both your Client ID and your Client Secret to a safe place. You want to keep both of these hidden from attackers.
+
+![Spotify API Credentials](week-47-spotify-app.png)
+
+### 2. Install the Necessary R Packages
+
+1. Open your portfolio repository in RStudio, and choose Install Packages from the Tools menu.
+2. In the pop-up window that appears, enter `tidyverse`, `spotifyr`, `remotes`, and `usethis` into the Packages field and click the Install button. We will use the tidyverse and usethis packages extensively for all of our work in this course, and you need the remotes package to install the Spotify API.
+3. Depending on the exact details of your machine and how much you have used R before, you may be prompted with questions about installing other packages. You should be able just to press Enter: the default choices are always reasonable.
+
+### 3. Add Your Spotify API Credentials to R
+
+1. Type `usethis::edit_r_environ()` into the R console (bottom left pane) and press Enter.
+2. This command will open an .Renviron file in the file editor (top left pane). Edit it so that it contains two lines that look like the two lines below, but replace the fake Client ID and Client Secret with your real Client ID and Client Secret from the Spotify API.
+```
+SPOTIFY_CLIENT_ID=8a941f20cec289d54a97f404b9fe8705
+SPOTIFY_CLIENT_SECRET=ec0c6e9986719584bd6fecbba4ba299c
+```    
+3. **Save your changes** to .Renviron and then **Restart R** from the Session menu in RStudio.
+4. Type `spotifyr::get_spotify_access_token()` into the R Console (bottom left pane) and press Enter.
+5. If R returns 'Request Failed [400]. Retrying…' error messages, something has gone wrong. If you see a long string of numbers and letters (e.g., 'BQDO2UZaujrY6SP6OoNM1vwgRh_O4xDSLftwaRkPkY5N_2XwxU0kOzEiqsgbEAVtoWygMpFZIecdDyyfGZc', then congratulations: your portfolio can now talk to the Spotify API!
+6. This command will open your .gitignore file in the file editor (top left pane). Most of you will have this line already set up from Github, but it is also possible that the file will be empty. No matter what the file looks like, scroll through it and double-check that there is one line that reads `.Renviron`, all on its own line. If you cannot find a line like that, add it and save your changes. This line tells Git to ignore your Spotify credentials when it sends your other changes to Github, so that they stay off the public web.
+
+## Lab
+
+### 1. Prepare R
+
+Every time you work with the Spotify API, you will need to load two R libraries: `tidyverse` and `spotifyr`.
+
+```{r}
+#| label = "setup"
+library(tidyverse)
+library(spotifyr)
+```
+
+### 2. Download and View Features for Your Playlists
+
+- Collect the URIs of the most listened tracks for each member in your group from the [Spotify Wrapped](https://open.spotify.com/genre/2019-page) page, or some other playlist that you think is representative of each member's taste (e.g., a Discover Weekly, Daily Mix, or personally generated playlist).
+- Choose a different playlist to use as a baseline for comparison, e.g., the current [Dutch Spotify charts](https://open.spotify.com/user/spotifycharts/playlist/37i9dQZEVXbK4BFAukDzj3?si=5oSAbMqUSFGTwvA2Hz0Qzg).
+- Use the `get_playist_audio_features()` function to download the features for your chosen playlists. Don't forget to include a blank string as the first function argument (for historical reasons).
+
+For the sake of example, we'll compare two of Spotify's playlists: Everyday Favorites and Sinterklaas.
+
+```{r}
+spotify_features <-
+  get_playlist_audio_features(
+    "", 
+    c("1I7ZKCg9oGZaQw7OJqNxvO", "0Ay2qHhfscyBaPguLAD3M1")
+  )
+```
+
+### 3. Explore Basic Statistics
+
+- View the data and use the sorting functions to get a sense of the features.
+  - What are the minimum and maximum values of each feature in your playlists? How close are they to the extremes in the Spotify documentation?
+  - What is the median value of each feature in your playlists? How close is it to the middle of the range in the Spotify documentation?
+  - Make a note of any tracks that seem to be outliers for one or more features and listen to them.
+
+### 4. Explore Further with Visualisations
+
+- We will learn more about visualisations later in the course, but here are some templates you can use to start with.
+- If your playlists all have different names, you can use `playlist_name` instead of `playlist_id` for a more readable graphic.
+- See the [`ggplot` documentation](https://ggplot.tidyverse.org/) and DataCamp for more examples.
+
+```{r}
+spotify_features |> 
+  ggplot(aes(x = loudness)) +
+  geom_histogram(binwidth = 5) +
+  facet_wrap(~ playlist_id)
+```
+
+```{r}
+spotify_features |> 
+  ggplot(aes(x = playlist_id, y = acousticness)) +
+  geom_boxplot()
+```
+
+
+```{r}
+spotify_features |> 
+  ggplot(aes(x = playlist_id, y = danceability)) +
+  geom_violin()
+```
+
+```{r}
+spotify_features |> 
+  ggplot(aes(x = valence, y = energy, colour = playlist_id)) + 
+  geom_point()
+```
+
+### 5. Prepare to Report Back
+
+- How would you describe the musical taste of each of your group members? Where are you most similar and where do you most differ?
+- Which tracks were outliers on your playlists? Do you agree with Spotify that these tracks are unusual? Why do you still like them?
