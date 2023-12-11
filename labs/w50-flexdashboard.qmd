@@ -25,7 +25,7 @@ Pay particular attention to the layout possibilities.
 
 ## Connect RStudio to Github
 
-1. Follow the pre-workshop installation instructions at https://happygitwithr.com/workshops
+1. Follow the pre-workshop installation instructions at [https://happygitwithr.com/workshops](https://happygitwithr.com/workshops).
   - This usually takes much less time than they suggest!
 2. From your Github repository page, click the Settings tab.
 3. Scroll down to the Github Pages heading and change the Source button from ‘None’ to ‘main’.
